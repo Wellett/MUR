@@ -12,6 +12,7 @@ Description: Header File for GPro.h
 /* Libraries */
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 /* Struct to contain each data point */
@@ -29,3 +30,4 @@ void* safe_malloc(size_t);
 GData_t* read_data_point(FILE*);
 void print_data(GData_t*);
 void fprint_data_line(FILE* file_p, GData_t* data_p);
+GData_t* rotate_sample(GData_t* sample_p);

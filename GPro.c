@@ -15,11 +15,12 @@ and gravity offset.
 #define OUTPUT_HEAD "Time,G Force Lat,G Force Long,G Force Vert\ns,G,G,G\n"
 #define INPUT_FILE "Enduro_G_Data.csv"
 
+/*constants*/
+#define OFFSET 1.0
+#define ANGLE 0.4025 /*Angle of G-sensor to vertical in radians*/
+#define SCALE_F 0.945
 
 #include "GPro.h"
-#include <stdio.h>
-#include <stdlib.h>
-
 
 
 int
@@ -35,14 +36,15 @@ main(int argc, char *argv[]){
   fprintf(outputFile, OUTPUT_HEAD);
 
   GData_t* newSample;
+  GData_t* newData;
   while ((newSample = read_data_point(inputFile)) != NULL){
-    fprint_data_line(outputFile, newSample);
+    newData = rotate_sample(newSample);
     free(newSample);
+    fprint_data_line(outputFile, newData);
+    free(newData);
   }
 
-
-
-
+  free(newSample);
   fclose(inputFile);
   fclose(outputFile);
 
@@ -83,6 +85,25 @@ void fprint_data_line(FILE* file_p, GData_t* data_p){
   fprintf(file_p, "%.2f,", data_p->GLat);
   fprintf(file_p, "%.2f,", data_p->GLong);
   fprintf(file_p, "%.2f\n", data_p->GVert);
+}
+
+/* single rotation and offset approximation method */
+GData_t* rotate_sample(GData_t* sample_p){
+  GData_t* newData = (GData_t*)safe_malloc(sizeof(GData_t));
+  sample_p->GVert += OFFSET; /*add offset for calculation*/
+  *newData = *sample_p; /*Copy data*/
+
+
+  /* Rotate about Latteral axis */
+  newData->GLong = cos(ANGLE)*(sample_p->GLong) + sin(ANGLE)*(sample_p->GVert);
+  newData->GVert = cos(ANGLE)*(sample_p->GVert) - sin(ANGLE)*(sample_p->GLong);
+
+  /* Apply Scale Factor */
+  newData->GLat /= SCALE_F;
+  newData->GLong /= SCALE_F;
+  newData->GVert /= SCALE_F;
+
+  return newData;
 }
 
 /* UTILITIES */
