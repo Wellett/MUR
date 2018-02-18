@@ -4,7 +4,7 @@ Position:     Dynamics Engineer
 Student ID:   586703
 
 Written:      18/02/2018
-Last modified:18/02/2018
+Last modified:19/02/2018
 
 Description: Processor for racecar accelerometer data.
 Takes data input as csv and processes to adjust for accelerometer inclination
